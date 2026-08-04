@@ -116,7 +116,6 @@ async def add_player_command(ctx, fid, kid):
                 await ctx.send("❌ Invalid player ID or kingdom. Please double-check the values.")
             else:
                 await ctx.send("❌ The redeem request failed. Please try again later.")
-            return
         if result["reason"] != "player_invalid":
             added = add_player(fid, kid, str(ctx.author.id))
             if not added:
