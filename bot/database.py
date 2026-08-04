@@ -275,7 +275,7 @@ def get_gift_channel_id():
 
 
 def player_exists(fid):
-    conn = sqlite3.connect(DB)
+    conn = connect()
 
     cur = conn.cursor()
 
