@@ -82,10 +82,7 @@ prompt_value() {
   fi
 
   if [[ -t 0 ]]; then
-    read -r -p "$prompt_text" value
-  else
-    echo "$prompt_text"
-    read -r value
+    read -p "$prompt_text" value
   fi
 
   if [[ -z "$value" && -n "$default_value" ]]; then
