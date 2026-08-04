@@ -32,6 +32,7 @@ install_pkg() {
 ensure_command() {
   local cmd="$1"
   local pkg="$2"
+  read -t 1 -n 10000 purge_buffer
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "Missing $cmd. Attempting to install $pkg..."
     install_pkg "$pkg"
