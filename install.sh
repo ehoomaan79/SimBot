@@ -10,15 +10,22 @@ SYSTEMD_MODE="none"
 
 install_pkg() {
   local pkg="$1"
+  echo "Installing package: $pkg"
   if command -v apt-get >/dev/null 2>&1; then
-    apt-get update >/dev/null 2>&1 || true
-    apt-get install -y "$pkg" >/dev/null 2>&1 || true
+    echo "Using apt-get"
+    apt-get update
+    apt-get install -y "$pkg"
   elif command -v yum >/dev/null 2>&1; then
-    yum install -y "$pkg" >/dev/null 2>&1 || true
+    echo "Using yum"
+    yum install -y "$pkg"
   elif command -v dnf >/dev/null 2>&1; then
-    dnf install -y "$pkg" >/dev/null 2>&1 || true
+    echo "Using dnf"
+    dnf install -y "$pkg"
   elif command -v apk >/dev/null 2>&1; then
-    apk add --no-cache "$pkg" >/dev/null 2>&1 || true
+    echo "Using apk"
+    apk add --no-cache "$pkg"
+  else
+    echo "No supported package manager found."
   fi
 }
 
@@ -32,7 +39,7 @@ ensure_command() {
 
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "Could not install $cmd automatically. Please install $pkg manually." >&2
-    return 1
+    exit 1
   fi
 }
 
