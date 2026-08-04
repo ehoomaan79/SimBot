@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(ENV_PATH)
-
+print(ENV_PATH.exists())
 
 def _prompt_for_value(key, prompt_text, default_value=""):
     existing_value = os.getenv(key)
