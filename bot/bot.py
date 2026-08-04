@@ -209,4 +209,8 @@ async def status_command(ctx):
     await ctx.send(f"📊 Active gift codes: {len(active_codes)}\n📍 Monitored channel: {configured_channel}")
 
 
-bot.run(DISCORD_TOKEN)
+try:
+    bot.run(DISCORD_TOKEN)
+except Exception as exc:
+    logger.exception("Discord login failed: %s", exc)
+    raise
