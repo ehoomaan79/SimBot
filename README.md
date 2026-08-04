@@ -26,7 +26,7 @@ A Discord bot that monitors a shared Kingshot gift-code channel, stores newly di
 Use the one-line installation command below on a Linux host with `sudo` access:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/<your-username>/<your-repo>/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/ehoomaan79/SimBot/main/install.sh | sudo bash
 ```
 
 This installer will:
