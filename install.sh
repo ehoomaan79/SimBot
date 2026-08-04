@@ -45,7 +45,14 @@ ensure_command() {
 
 ensure_command git git
 ensure_command python3 python3
-ensure_command python3-venv python3-venv || true
+if ! python3 -m venv --help >/dev/null 2>&1; then
+  echo "python3 venv support is missing. Attempting to install a venv package..."
+  install_pkg "python3-venv"
+  if ! python3 -m venv --help >/dev/null 2>&1; then
+    echo "python3 venv support is still unavailable. Please install the venv package for your distro manually." >&2
+    exit 1
+  fi
+fi
 ensure_command curl curl || true
 
 if command -v systemctl >/dev/null 2>&1; then
