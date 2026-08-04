@@ -70,16 +70,29 @@ if [[ "${SYSTEMD_MODE}" == "none" ]]; then
   echo "systemd was not detected; the bot will be installed to ${INSTALL_DIR}, but no service will be enabled."
 fi
 
-read -r -p "Enter the Discord bot token: " DISCORD_TOKEN
-if [[ -z "${DISCORD_TOKEN}" ]]; then
+if [[ -n "${DISCORD_TOKEN:-}" ]]; then
+  echo "Using DISCORD_TOKEN from environment."
+else
+  read -r -p "Enter the Discord bot token: " DISCORD_TOKEN
+fi
+
+if [[ -z "${DISCORD_TOKEN:-}" ]]; then
   echo "Bot token cannot be empty." >&2
   exit 1
 fi
 
-read -r -p "Enter the Kingshot signing secret [default: mN4!pQs6JrYwV9]: " SIGN_SECRET
+if [[ -n "${SIGN_SECRET:-}" ]]; then
+  echo "Using SIGN_SECRET from environment."
+else
+  read -r -p "Enter the Kingshot signing secret [default: mN4!pQs6JrYwV9]: " SIGN_SECRET
+fi
 SIGN_SECRET="${SIGN_SECRET:-mN4!pQs6JrYwV9}"
 
-read -r -p "Enter the Kingshot API URL [default: https://kingshot-giftcode.centurygame.com/api/gift_code]: " API_URL
+if [[ -n "${API_URL:-}" ]]; then
+  echo "Using API_URL from environment."
+else
+  read -r -p "Enter the Kingshot API URL [default: https://kingshot-giftcode.centurygame.com/api/gift_code]: " API_URL
+fi
 API_URL="${API_URL:-https://kingshot-giftcode.centurygame.com/api/gift_code}"
 
 rm -rf "${INSTALL_DIR}" "${CLONE_DIR}"
