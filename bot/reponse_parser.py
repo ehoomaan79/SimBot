@@ -1,54 +1,42 @@
 import json
 
-def validate_redeem_response(response):
 
-    try:
-        data = json.loads(response)
+def classify_redeem_response(response):
+    """Return a normalized result for Kingshot redeem responses."""
+    if response is None:
+        return {"valid": False, "reason": "empty", "message": ""}
 
-    except json.JSONDecodeError:
-        return False
+    if isinstance(response, str):
+        try:
+            data = json.loads(response)
+        except json.JSONDecodeError:
+            return {"valid": False, "reason": "invalid_json", "message": response}
+    else:
+        data = response
 
+    msg = str(data.get("msg", "")).strip().lower()
+    err_code = data.get("err_code")
 
-    print(data)
-
-
-    msg = str(
-        data.get("msg", "")
-    ).lower()
-
-
-    # successful redemption
     if data.get("success") is True:
-        return True
+        return {"valid": True, "reason": "success", "message": msg}
+
+    if err_code == 40007 or "time error" in msg or "time expired" in msg:
+        return {"valid": False, "reason": "code_expired", "message": msg}
+
+    if err_code == 40014 or "cdk not found" in msg:
+        return {"valid": False, "reason": "code_invalid", "message": msg}
+
+    if err_code == 40020 or "user info error" in msg:
+        return {"valid": False, "reason": "player_invalid", "message": msg}
+
+    if any(text in msg for text in ["already received", "already redeemed", "cdk used", "limit"]):
+        return {"valid": True, "reason": "already_redeemed", "message": msg}
+
+    if any(text in msg for text in ["player not found", "role not exist", "fid error"]):
+        return {"valid": False, "reason": "player_invalid", "message": msg}
+
+    return {"valid": False, "reason": "unknown", "message": msg}
 
 
-    # player exists but code already used
-    valid_messages = [
-        "already received",
-        "already redeemed",
-        "cdk used",
-        "limit"
-    ]
-
-
-    for text in valid_messages:
-
-        if text in msg:
-            return True
-
-
-    # invalid player
-    invalid_messages = [
-        "player not found",
-        "role not exist",
-        "fid error"
-    ]
-
-
-    for text in invalid_messages:
-
-        if text in msg:
-            return False
-
-
-    return False
+def validate_redeem_response(response):
+    return classify_redeem_response(response)["valid"]

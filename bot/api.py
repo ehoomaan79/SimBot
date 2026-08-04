@@ -1,8 +1,13 @@
-import aiohttp
-import time
 import os
+import time
 
+import aiohttp
+
+from logger import get_logger
 from signer import append_sign
+
+
+logger = get_logger(__name__)
 
 URL = os.getenv("API_URL")
 
@@ -43,12 +48,17 @@ async def redeem(fid, code, kid):
     }
 
     payload = append_sign(data)
+    logger.debug("Preparing redeem request for fid=%s kid=%s code=%s", fid, kid, code)
+    logger.debug("Payload: %s", payload)
 
-    print("Payload:", payload)
-
-    async with aiohttp.ClientSession(headers=HEADERS) as session:
-        async with session.post(URL, data=payload) as response:
-            print("Status:", response.status)
-            print("Response headers:", dict(response.headers))
-            text = await response.text()
-            return text
+    try:
+        async with aiohttp.ClientSession(headers=HEADERS) as session:
+            async with session.post(URL, data=payload) as response:
+                logger.info("Redeem request completed with status %s", response.status)
+                logger.debug("Response headers: %s", dict(response.headers))
+                text = await response.text()
+                logger.debug("Raw redeem response: %s", text)
+                return text
+    except Exception as exc:
+        logger.exception("Redeem request failed for fid=%s kid=%s code=%s", fid, kid, code)
+        raise
