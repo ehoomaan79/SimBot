@@ -99,11 +99,12 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 
-if [[ -t 0 ]]; then
-  echo "Starting the bot once interactively so it can collect the required values before the service is enabled."
+echo "Launching the first-run setup so the bot can collect its required values before the service is enabled."
+if [[ -r /dev/tty ]]; then
   "${INSTALL_DIR}/scripts/start_discord_bot.sh" || true
 else
-  echo "Interactive terminal not detected; the first-run setup will prompt when the bot is started manually."
+  echo "No terminal is available for input right now; if the values are not entered, run the bot manually later."
+  "${INSTALL_DIR}/scripts/start_discord_bot.sh" || true
 fi
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then

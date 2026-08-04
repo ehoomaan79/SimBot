@@ -74,8 +74,10 @@ prompt_for_env_value() {
   fi
 
   local value=""
-  if [[ -t 0 ]]; then
+  if [[ -r /dev/tty ]]; then
     read -r value </dev/tty
+  elif [[ -t 0 ]]; then
+    read -r value
   fi
 
   if [[ -z "$value" ]]; then
