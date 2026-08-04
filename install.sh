@@ -87,8 +87,6 @@ else
   cp -a . "${INSTALL_DIR}/"
 fi
 
-chmod +x "${INSTALL_DIR}/scripts/start_discord_bot.sh"
-
 if [[ -f "${INSTALL_DIR}/requirements.txt" ]]; then
   python3 -m venv "${INSTALL_DIR}/.venv"
   "${INSTALL_DIR}/.venv/bin/pip" install --upgrade pip || true
@@ -99,65 +97,30 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 
-echo "Launching the first-run setup so the bot can collect its required values before the service is enabled."
-if [[ -r /dev/tty ]]; then
-  "${INSTALL_DIR}/scripts/start_discord_bot.sh" || true
-else
-  echo "No terminal is available for input right now; if the values are not entered, run the bot manually later."
-  "${INSTALL_DIR}/scripts/start_discord_bot.sh" || true
-fi
+echo "Launching the bot once to collect its first-run configuration values."
+BOT_SETUP_MODE=1 "${INSTALL_DIR}/.venv/bin/python" "${INSTALL_DIR}/bot/bot.py" || true
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system
-  cat > "${SERVICE_FILE}" <<EOF2
-[Unit]
-Description=Discord Kingshot gift code bot
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=${INSTALL_DIR}
-Environment=PYTHONUNBUFFERED=1
-EnvironmentFile=${INSTALL_DIR}/.env
-ExecStart=${INSTALL_DIR}/scripts/start_discord_bot.sh
-Restart=always
-RestartSec=5
-StandardOutput=append:${INSTALL_DIR}/logs/discord-bot.log
-StandardError=append:${INSTALL_DIR}/logs/discord-bot.error.log
-
-[Install]
-WantedBy=multi-user.target
-EOF2
+  cp "${INSTALL_DIR}/scripts/discord-bot.service" "${SERVICE_FILE}"
+  sed -i "s|__INSTALL_DIR__|${INSTALL_DIR}|g" "${SERVICE_FILE}"
+  sed -i "s|__PYTHON_EXEC__|${INSTALL_DIR}/.venv/bin/python|g" "${SERVICE_FILE}"
+  sed -i "s|__BOT_PATH__|${INSTALL_DIR}/bot/bot.py|g" "${SERVICE_FILE}"
 
   systemctl daemon-reload || true
   systemctl enable --now "${SERVICE_NAME}.service" || true
   systemctl status "${SERVICE_NAME}.service" --no-pager || true
 elif [[ "${SYSTEMD_MODE}" == "user" ]]; then
   mkdir -p "$HOME/.config/systemd/user"
-  cat > "${SERVICE_FILE}" <<EOF2
-[Unit]
-Description=Discord Kingshot gift code bot
-After=network.target
-
-[Service]
-Type=simple
-WorkingDirectory=${INSTALL_DIR}
-Environment=PYTHONUNBUFFERED=1
-EnvironmentFile=${INSTALL_DIR}/.env
-ExecStart=${INSTALL_DIR}/scripts/start_discord_bot.sh
-Restart=always
-RestartSec=5
-StandardOutput=append:${INSTALL_DIR}/logs/discord-bot.log
-StandardError=append:${INSTALL_DIR}/logs/discord-bot.error.log
-
-[Install]
-WantedBy=default.target
-EOF2
+  cp "${INSTALL_DIR}/scripts/discord-bot.service" "${SERVICE_FILE}"
+  sed -i "s|__INSTALL_DIR__|${INSTALL_DIR}|g" "${SERVICE_FILE}"
+  sed -i "s|__PYTHON_EXEC__|${INSTALL_DIR}/.venv/bin/python|g" "${SERVICE_FILE}"
+  sed -i "s|__BOT_PATH__|${INSTALL_DIR}/bot/bot.py|g" "${SERVICE_FILE}"
 
   systemctl --user daemon-reload || true
   systemctl --user enable --now "${SERVICE_NAME}.service" || true
   systemctl --user status "${SERVICE_NAME}.service" --no-pager || true
 else
   echo "Installation completed. Start the bot manually with:"
-  echo "  ${INSTALL_DIR}/scripts/start_discord_bot.sh"
+  echo "  ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
 fi
