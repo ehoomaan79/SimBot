@@ -16,7 +16,7 @@ def append_sign(data: dict):
     )
 
     sign = md5(
-        (query + str(SECRET)).encode()
+        (query + SECRET).encode()
     ).hexdigest()
 
     return {
