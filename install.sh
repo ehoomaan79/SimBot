@@ -96,6 +96,8 @@ else
 fi
 
 touch "${INSTALL_DIR}/.env"
+mkdir -p "${INSTALL_DIR}/logs"
+export DISCORD_BOT_LOG_DIR="${INSTALL_DIR}/logs"
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system

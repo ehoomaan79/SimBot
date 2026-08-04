@@ -4,8 +4,38 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOG_DIR = os.getenv("DISCORD_BOT_LOG_DIR", str(BASE_DIR / "logs"))
-LOG_FILE = Path(LOG_DIR) / "bot.log"
+
+
+def _resolve_log_path() -> Path:
+    configured = os.getenv("DISCORD_BOT_LOG_DIR")
+    if configured:
+        candidate = Path(configured)
+        if not candidate.is_absolute():
+            candidate = BASE_DIR / candidate
+        return candidate
+
+    for candidate in (
+        Path("/var/log/discord-bot"),
+        Path("/var/log"),
+        Path.home() / "logs",
+        BASE_DIR / "logs",
+        Path("/tmp"),
+    ):
+        try:
+            candidate.mkdir(parents=True, exist_ok=True)
+            test_file = candidate / ".write-test"
+            with test_file.open("a", encoding="utf-8"):
+                pass
+            test_file.unlink(missing_ok=True)
+            return candidate
+        except OSError:
+            continue
+
+    return Path("/tmp")
+
+
+LOG_DIR = _resolve_log_path()
+LOG_FILE = LOG_DIR / "bot.log"
 
 
 def get_logger(name: str = "discord_bot") -> logging.Logger:
