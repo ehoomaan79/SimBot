@@ -1,9 +1,11 @@
 import logging
+import os
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOG_FILE = BASE_DIR / "bot.log"
+LOG_DIR = os.getenv("DISCORD_BOT_LOG_DIR", str(BASE_DIR / "logs"))
+LOG_FILE = Path(LOG_DIR) / "bot.log"
 
 
 def get_logger(name: str = "discord_bot") -> logging.Logger:
@@ -20,6 +22,8 @@ def get_logger(name: str = "discord_bot") -> logging.Logger:
         "%(asctime)s %(levelname)s %(name)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+
+    LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     file_handler = TimedRotatingFileHandler(
         LOG_FILE,
