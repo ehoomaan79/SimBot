@@ -196,7 +196,7 @@ def get_all_players():
 
 
 def add_player(fid, kid, discord_id):
-    conn = sqlite3.connect(DB)
+    conn = connect()
 
     cur = conn.cursor()
 
@@ -231,7 +231,7 @@ def add_player(fid, kid, discord_id):
 
 
 def remove_player(fid):
-    conn = sqlite3.connect(DB)
+    conn = connect()
     cur = conn.cursor()
 
     cur.execute("DELETE FROM players WHERE fid=?", (fid,))
@@ -244,7 +244,7 @@ def remove_player(fid):
 
 
 def set_setting(key, value):
-    conn = sqlite3.connect(DB)
+    conn = connect()
     cur = conn.cursor()
     cur.execute(
         "INSERT OR REPLACE INTO bot_settings (key, value) VALUES (?, ?)",
