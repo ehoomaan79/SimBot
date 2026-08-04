@@ -36,8 +36,8 @@ Commands:
 - !status              Show active gift codes and the monitored channel.
 
 Examples:
-- !add 34190925 207
-- !code add HAPPYEMOJIDAY
+- !add 123456 123
+- !code add SimBot
 - !setchannel #gift-codes
 ```"""
     await ctx.send(help_text)
