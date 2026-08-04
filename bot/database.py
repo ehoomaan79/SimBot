@@ -256,7 +256,7 @@ def set_setting(key, value):
 
 
 def get_setting(key, default=None):
-    conn = sqlite3.connect(DB)
+    conn = connect()
     cur = conn.cursor()
     cur.execute("SELECT value FROM bot_settings WHERE key=?", (key,))
     row = cur.fetchone()
