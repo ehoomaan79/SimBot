@@ -117,14 +117,14 @@ async def add_player_command(ctx, fid, kid):
             else:
                 await ctx.send("❌ The redeem request failed. Please try again later.")
             return
+        if result["reason"] != "player_invalid":
+            added = add_player(fid, kid, str(ctx.author.id))
+            if not added:
+                await ctx.send(f"⚠️ Player `{fid}` was not added due to a database conflict.")
+                return
 
-    added = add_player(fid, kid, str(ctx.author.id))
-    if not added:
-        await ctx.send(f"⚠️ Player `{fid}` was not added due to a database conflict.")
-        return
-
-    await ctx.message.add_reaction("✅")
-    await ctx.send(f"✅ Player `{fid}` added successfully.")
+            await ctx.message.add_reaction("✅")
+            await ctx.send(f"✅ Player `{fid}` added successfully.")
 
     active_codes = get_active_codes()
     if active_codes:
