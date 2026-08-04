@@ -96,8 +96,6 @@ else
 fi
 
 touch "${INSTALL_DIR}/.env"
-mkdir -p "${INSTALL_DIR}/logs"
-export DISCORD_BOT_LOG_DIR="${INSTALL_DIR}/logs"
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system
@@ -109,7 +107,9 @@ if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   echo "Installation completed."
   echo ""
   echo "First run the bot once to enter the required values:"
-  echo "  BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
+  echo "  bash -lc 'BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
+  echo "  fish -c 'env BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
+  echo "  zsh -lc 'BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
   echo ""
   echo "Then enable and start the service with:"
   echo "  sudo systemctl daemon-reload"
@@ -126,7 +126,9 @@ elif [[ "${SYSTEMD_MODE}" == "user" ]]; then
   echo "Installation completed."
   echo ""
   echo "First run the bot once to enter the required values:"
-  echo "  BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
+  echo "  bash -lc 'BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
+  echo "  fish -c 'env BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
+  echo "  zsh -lc 'BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py'"
   echo ""
   echo "Then enable and start the service with:"
   echo "  systemctl --user daemon-reload"
