@@ -4,6 +4,11 @@ from pathlib import Path
 
 from logger import get_logger
 
+from pathlib import Path
+from dotenv import load_dotenv
+
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(ENV_PATH)
 
 logger = get_logger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent

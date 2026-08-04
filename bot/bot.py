@@ -12,6 +12,11 @@ from reponse_parser import classify_redeem_response
 from workers import check_codes
 from kingshot_listener import handle_message
 
+from pathlib import Path
+from dotenv import load_dotenv
+
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(ENV_PATH)
 
 logger = get_logger(__name__)
 
