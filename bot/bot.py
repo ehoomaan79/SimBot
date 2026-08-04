@@ -5,11 +5,12 @@ from discord.ext import commands
 
 from api import redeem
 from config import DISCORD_TOKEN
-from database import add_code, add_player, get_active_codes, get_latest_code, init_db, player_exists, remove_code, remove_player
+from database import add_code, add_player, get_active_codes, get_gift_channel_id, get_latest_code, init_db, player_exists, remove_code, remove_player, set_gift_channel_id
 from giftcodes import redeem_all_active_codes_for_player
 from logger import get_logger
-from reponse_parser import validate_redeem_response
+from reponse_parser import classify_redeem_response
 from workers import check_codes
+from kingshot_listener import handle_message
 
 
 logger = get_logger(__name__)
@@ -21,6 +22,25 @@ intents.message_content = True
 
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+@bot.command(name="help")
+async def help_command(ctx):
+    help_text = """```md
+Commands:
+- !add <fid> <kid>      Register a new player and attempt a redeem with the latest active code.
+- !remove <fid>        Remove a registered player.
+- !code add <giftcode> Add a gift code to the database. (Admin only)
+- !code remove <giftcode> Remove a gift code from the database. (Admin only)
+- !setchannel <#channel> or <channel_id> Link the gift-code source channel.
+- !status              Show active gift codes and the monitored channel.
+
+Examples:
+- !add 34190925 207
+- !code add HAPPYEMOJIDAY
+- !setchannel #gift-codes
+```"""
+    await ctx.send(help_text)
 
 
 @bot.event
@@ -41,10 +61,12 @@ async def on_message(message):
         getattr(message.channel, "name", message.channel.id),
         message.content,
     )
+
+    await handle_message(message)
     await bot.process_commands(message)
 
 
-@bot.command(name="add")
+@bot.command(name="add", help="Register a new player and attempt a redeem with the latest active gift code.")
 async def add_player_command(ctx, fid, kid):
     logger.info("Add-player command invoked by %s for fid=%s kid=%s", ctx.author, fid, kid)
 
@@ -71,10 +93,24 @@ async def add_player_command(ctx, fid, kid):
         response = await redeem(fid, code, kid)
         logger.debug("Redeem response for %s: %s", fid, response)
 
-        valid = validate_redeem_response(response)
-        if not valid:
-            logger.warning("Player registration failed for fid=%s kid=%s. Response: %s", fid, kid, response)
-            await ctx.send("❌ Invalid player ID or kingdom. Please double-check the values.")
+        result = classify_redeem_response(response)
+        if not result["valid"]:
+            logger.warning(
+                "Player registration failed for fid=%s kid=%s. Reason=%s message=%s",
+                fid,
+                kid,
+                result["reason"],
+                result["message"],
+            )
+
+            if result["reason"] == "code_expired":
+                await ctx.send("❌ The current gift code has expired. Please try again later.")
+            elif result["reason"] == "code_invalid":
+                await ctx.send("❌ The gift code is invalid or could not be found.")
+            elif result["reason"] == "player_invalid":
+                await ctx.send("❌ Invalid player ID or kingdom. Please double-check the values.")
+            else:
+                await ctx.send("❌ The redeem request failed. Please try again later.")
             return
 
     added = add_player(fid, kid, str(ctx.author.id))
@@ -93,7 +129,7 @@ async def add_player_command(ctx, fid, kid):
         await ctx.send("ℹ️ No active gift codes are currently available for redemption.")
 
 
-@bot.command(name="remove")
+@bot.command(name="remove", help="Remove a registered player from the database.")
 async def remove_player_command(ctx, fid):
     logger.info("Remove-player command invoked by %s for fid=%s", ctx.author, fid)
 
@@ -108,7 +144,7 @@ async def remove_player_command(ctx, fid):
         await ctx.send(f"⚠️ Player `{fid}` was not found.")
 
 
-@bot.command(name="code")
+@bot.command(name="code", help="Add or remove a gift code from the database. Admin only.")
 @commands.has_permissions(administrator=True)
 async def code_command(ctx, action=None, code=None):
     logger.info("Code command invoked by %s with action=%s", ctx.author, action)
@@ -134,11 +170,43 @@ async def code_command(ctx, action=None, code=None):
     await ctx.send("Usage: `!code add <giftcode>` or `!code remove <giftcode>`")
 
 
-@bot.command(name="status")
+@bot.command(name="setchannel", help="Link the Discord channel that should be watched for new gift-code messages.")
+async def set_channel_command(ctx, channel=None):
+    logger.info("Set-channel command invoked by %s", ctx.author)
+
+    if channel is None:
+        channel_id = str(ctx.channel.id)
+        target_name = ctx.channel.name
+    else:
+        if channel.startswith("<#") and channel.endswith(">"):
+            channel_id = channel[2:-1]
+        elif channel.isdigit():
+            channel_id = channel
+        else:
+            if ctx.guild:
+                matches = [ch for ch in ctx.guild.channels if ch.name.lower() == channel.lower()]
+                if matches:
+                    channel_id = str(matches[0].id)
+                    target_name = matches[0].name
+                else:
+                    await ctx.send("❌ I could not find that channel. Please use a channel mention or ID.")
+                    return
+            else:
+                await ctx.send("❌ Please provide a channel mention or ID.")
+                return
+
+        target_name = channel
+
+    set_gift_channel_id(channel_id)
+    await ctx.send(f"✅ Gift-code channel linked to {target_name} ({channel_id})")
+
+
+@bot.command(name="status", help="Show the number of active gift codes and the currently monitored channel.")
 async def status_command(ctx):
     logger.info("Status command invoked by %s", ctx.author)
     active_codes = get_active_codes()
-    await ctx.send(f"📊 Active gift codes: {len(active_codes)}")
+    configured_channel = get_gift_channel_id() or "not set"
+    await ctx.send(f"📊 Active gift codes: {len(active_codes)}\n📍 Monitored channel: {configured_channel}")
 
 
 bot.run(DISCORD_TOKEN)

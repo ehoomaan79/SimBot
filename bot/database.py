@@ -37,6 +37,14 @@ def init_db():
     )
     """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS bot_settings
+    (
+        key TEXT PRIMARY KEY,
+        value TEXT
+    )
+    """)
+
     conn.commit()
     conn.close()
     logger.info("Database initialized")
@@ -230,6 +238,37 @@ def remove_player(fid):
     conn.close()
     logger.info("Removed player %s from database", fid)
     return removed > 0
+
+
+def set_setting(key, value):
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT OR REPLACE INTO bot_settings (key, value) VALUES (?, ?)",
+        (key, str(value)),
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def get_setting(key, default=None):
+    conn = sqlite3.connect(DB)
+    cur = conn.cursor()
+    cur.execute("SELECT value FROM bot_settings WHERE key=?", (key,))
+    row = cur.fetchone()
+    conn.close()
+    if row is None:
+        return default
+    return row[0]
+
+
+def set_gift_channel_id(channel_id):
+    return set_setting("gift_channel_id", channel_id)
+
+
+def get_gift_channel_id():
+    return get_setting("gift_channel_id")
 
 
 def player_exists(fid):
