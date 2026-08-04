@@ -21,6 +21,23 @@ A Discord bot that monitors a shared Kingshot gift-code channel, stores newly di
 - Structured logging for debugging and monitoring
 - Linux service integration with systemd
 
+## Installation
+
+Use the one-line installation command below on a Linux host with `sudo` access:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/<your-username>/<your-repo>/main/install.sh | sudo bash
+```
+
+This installer will:
+
+- clone the repository into a system path under `/opt/discord-bot-src`
+- copy the project into `/opt/discord-bot`
+- create the required runtime folders such as `/opt/discord-bot/logs`
+- create or update `/opt/discord-bot/.env` with your Discord token and the Kingshot API values
+- install and enable the systemd service
+- start the bot automatically
+
 ## Project structure
 
 - bot/ - main bot logic, Discord commands, API integration, and database helpers
@@ -46,48 +63,43 @@ SIGN_SECRET=your_kingshot_signature_secret
 API_URL=https://kingshot-giftcode.centurygame.com/api/gift_code
 ```
 
-## Installation
+### Required environment values
 
-### 1. Clone the repository
+The installer prompts for the Discord bot token and writes these values into `/opt/discord-bot/.env`:
 
-```bash
-git clone <your-repository-url>
-cd Discord-Bot
+```env
+DISCORD_TOKEN=your_discord_bot_token
+SIGN_SECRET=your_kingshot_signature_secret
+API_URL=https://kingshot-giftcode.centurygame.com/api/gift_code
 ```
 
-### 2. Create a virtual environment
+### Service management
+
+After installation, you can manage the bot with:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+systemctl --user status discord-bot
+systemctl --user restart discord-bot
+systemctl --user stop discord-bot
 ```
 
-### 3. Configure environment variables
+## Uninstallation
 
-Copy the template values into a .env file and replace the placeholders with your real values.
-
-### 4. Run the bot locally
+To remove the installed service and files:
 
 ```bash
-python bot/bot.py
+sudo rm -f /etc/systemd/system/discord-bot.service
+sudo rm -rf /opt/discord-bot /opt/discord-bot-src
+sudo systemctl daemon-reload
 ```
 
-## Linux service installation
-
-This repository includes an installer script and a systemd service definition.
+If you installed the service as a user service instead of a system service, use the user variant:
 
 ```bash
-bash install.sh
+systemctl --user disable --now discord-bot
+rm -f ~/.config/systemd/user/discord-bot.service
+systemctl --user daemon-reload
 ```
-
-The installer will:
-
-- clone or copy the repository to the target host directory
-- create the required runtime directories
-- write the .env file with the Discord token and Kingshot API values
-- install the systemd service
-- enable and start the service
 
 ## Discord commands
 
