@@ -97,9 +97,6 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 
-echo "Launching the bot once to collect its first-run configuration values."
-BOT_SETUP_MODE=1 "${INSTALL_DIR}/.venv/bin/python" "${INSTALL_DIR}/bot/bot.py" || true
-
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system
   cp "${INSTALL_DIR}/scripts/discord-bot.service" "${SERVICE_FILE}"
