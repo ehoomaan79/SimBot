@@ -107,9 +107,16 @@ if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   sed -i "s|__PYTHON_EXEC__|${INSTALL_DIR}/.venv/bin/python|g" "${SERVICE_FILE}"
   sed -i "s|__BOT_PATH__|${INSTALL_DIR}/bot/bot.py|g" "${SERVICE_FILE}"
 
-  systemctl daemon-reload || true
-  systemctl enable --now "${SERVICE_NAME}.service" || true
-  systemctl status "${SERVICE_NAME}.service" --no-pager || true
+  echo "Installation completed."
+  echo ""
+  echo "First run the bot once to enter the required values:"
+  echo "  BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
+  echo ""
+  echo "Then enable and start the service with:"
+  echo "  sudo systemctl daemon-reload"
+  echo "  sudo systemctl enable ${SERVICE_NAME}.service"
+  echo "  sudo systemctl start ${SERVICE_NAME}.service"
+  echo "  sudo systemctl status ${SERVICE_NAME}.service --no-pager"
 elif [[ "${SYSTEMD_MODE}" == "user" ]]; then
   mkdir -p "$HOME/.config/systemd/user"
   cp "${INSTALL_DIR}/scripts/discord-bot.service" "${SERVICE_FILE}"
@@ -117,10 +124,19 @@ elif [[ "${SYSTEMD_MODE}" == "user" ]]; then
   sed -i "s|__PYTHON_EXEC__|${INSTALL_DIR}/.venv/bin/python|g" "${SERVICE_FILE}"
   sed -i "s|__BOT_PATH__|${INSTALL_DIR}/bot/bot.py|g" "${SERVICE_FILE}"
 
-  systemctl --user daemon-reload || true
-  systemctl --user enable --now "${SERVICE_NAME}.service" || true
-  systemctl --user status "${SERVICE_NAME}.service" --no-pager || true
+  echo "Installation completed."
+  echo ""
+  echo "First run the bot once to enter the required values:"
+  echo "  BOT_SETUP_MODE=1 ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
+  echo ""
+  echo "Then enable and start the service with:"
+  echo "  systemctl --user daemon-reload"
+  echo "  systemctl --user enable ${SERVICE_NAME}.service"
+  echo "  systemctl --user start ${SERVICE_NAME}.service"
+  echo "  systemctl --user status ${SERVICE_NAME}.service --no-pager"
 else
-  echo "Installation completed. Start the bot manually with:"
+  echo "Installation completed."
+  echo ""
+  echo "Start the bot manually with:"
   echo "  ${INSTALL_DIR}/.venv/bin/python ${INSTALL_DIR}/bot/bot.py"
 fi
