@@ -1,0 +1,17 @@
+[Unit]
+Description=Discord Kingshot gift code bot
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/discord-bot
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=/opt/discord-bot/.env
+ExecStart=/opt/discord-bot/scripts/start_discord_bot.sh
+Restart=always
+RestartSec=5
+StandardOutput=append:/opt/discord-bot/logs/discord-bot.log
+StandardError=append:/opt/discord-bot/logs/discord-bot.error.log
+
+[Install]
+WantedBy=multi-user.target
