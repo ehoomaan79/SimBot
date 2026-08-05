@@ -3,14 +3,14 @@ import os
 import sys
 from pathlib import Path
 
-# Import config which will prompt for missing values and set them in os.environ
-from config import DISCORD_TOKEN
-
 # Load .env and initialize config FIRST before importing other modules
 ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 if ENV_PATH.exists():
     from dotenv import load_dotenv
     load_dotenv(ENV_PATH)
+
+# Import config which will prompt for missing values and set them in os.environ
+from config import DISCORD_TOKEN
 
 import discord
 from discord.ext import commands
