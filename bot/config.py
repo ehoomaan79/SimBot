@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+
 def _prompt_for_value(key, prompt_text, default_value=""):
     existing_value = os.getenv(key)
     if existing_value:
