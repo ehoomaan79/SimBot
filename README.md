@@ -73,11 +73,24 @@ SIGN_SECRET=your_kingshot_signature_secret
 API_URL=https://kingshot-giftcode.centurygame.com/api/gift_code
 ```
 
+### Optional environment values
+
+```env
+DISCORD_BOT_DB_PATH=/path/to/custom/players.db    # Custom database path
+DISCORD_BOT_LOG_DIR=/path/to/custom/logs          # Custom log directory
+```
+
 ### Service management
 
 After installation, you can manage the bot with:
 
 ```bash
+# System service (installed as root)
+sudo systemctl status discord-bot
+sudo systemctl restart discord-bot
+sudo systemctl stop discord-bot
+
+# User service (installed as non-root user)
 systemctl --user status discord-bot
 systemctl --user restart discord-bot
 systemctl --user stop discord-bot
@@ -88,6 +101,7 @@ systemctl --user stop discord-bot
 To remove the installed service and files:
 
 ```bash
+# System service
 sudo rm -f /etc/systemd/system/discord-bot.service
 sudo rm -rf /opt/discord-bot /opt/discord-bot-src
 sudo systemctl daemon-reload
@@ -105,15 +119,36 @@ systemctl --user daemon-reload
 
 The bot currently supports these basic commands:
 
-- !add <fid> <kid> - register a player and attempt a redemption with the latest active gift code
-- !code add <giftcode> - manually add a gift code to the database
+- `!add <fid> <kid>` - register a player and attempt a redemption with the latest active gift code
+- `!remove <fid>` - remove a registered player from the database
+- `!code add <giftcode>` - manually add a gift code to the database (Admin only)
+- `!code remove <giftcode>` - remove a gift code from the database (Admin only)
+- `!setchannel <#channel> or <channel_id>` - link the gift-code source channel
+- `!status` - show active gift codes and the monitored channel
+- `!help` - show all available commands
+
+### Examples
+
+```
+!add 123456 123
+!remove 123456
+!code add SimBot
+!code remove SimBot
+!setchannel #gift-codes
+!setchannel 123456789012345678
+!status
+```
 
 ## Logging
 
 The bot writes logs to both:
 
 - the terminal console
-- a log file in the project root named bot.log
+- a daily rotating log file (keeps 7 days of logs)
+
+Log locations:
+- Development: `./logs/bot.log` or `~/logs/bot.log`
+- Production (service): `/var/log/discord-bot/bot.log` or `/opt/discord-bot/logs/bot.log`
 
 The service also writes its own runtime logs under the logs directory.
 
@@ -122,8 +157,8 @@ The service also writes its own runtime logs under the logs directory.
 The bot stores the following information locally in SQLite:
 
 - Discord user IDs
-- Kingshot player IDs
-- Kingdom IDs
+- Kingshot player IDs (FID)
+- Kingdom IDs (KID)
 - Gift codes and expiry timestamps
 
 This data is used only to support redeeming gift codes for registered players. If you deploy the bot publicly, make sure you are comfortable with the data you are storing and the terms you provide to users.
@@ -135,3 +170,20 @@ This project is not officially affiliated with Discord, Century Games, Kingshot,
 ## Support
 
 If you need help with setup, deployment, or troubleshooting, open an issue in the repository or contact the maintainer listed in the terms page.
+
+## Security
+
+This project follows security best practices:
+
+- Security policy: See [SECURITY.md](SECURITY.md) for vulnerability reporting
+- Dependabot alerts enabled for dependency vulnerability scanning
+- Code scanning configured for automated security analysis
+- Secret scanning enabled to detect exposed credentials
+
+## Contributing
+
+Contributions are welcome! Please read our contributing guidelines and code of conduct before submitting pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

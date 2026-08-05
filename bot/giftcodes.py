@@ -5,7 +5,7 @@ import re
 from api import redeem
 from database import add_code, get_all_players, remove_code
 from logger import get_logger
-from reponse_parser import validate_redeem_response
+from reponse_parser import classify_redeem_response
 
 
 logger = get_logger(__name__)
@@ -120,17 +120,17 @@ async def redeem_code_for_players(code, players=None):
                 logger.exception("Redeem error for code %s player %s", code, fid)
                 return False
 
-            valid = validate_redeem_response(resp)
-            if not valid and 'expired' in str(resp).lower():
+            result = classify_redeem_response(resp)
+            if result["reason"] == "code_expired":
                 remove_code(code)
                 logger.warning("Removed expired code %s", code)
                 return False
 
-            if valid:
+            if result["valid"]:
                 logger.info("Redeem succeeded for code %s player %s", code, fid)
                 return True
 
-            logger.warning("Redeem failed for code %s player %s. Response: %s", code, fid, resp)
+            logger.warning("Redeem failed for code %s player %s. Reason: %s Response: %s", code, fid, result["reason"], resp)
             return False
 
     tasks = [redeem_for_player(fid, kid) for fid, kid in players]
@@ -139,10 +139,8 @@ async def redeem_code_for_players(code, players=None):
 
 
 async def redeem_all_active_codes_for_player(fid, kid):
-    players = [(fid, kid)]
-    active_codes = [code for code in []]
     from database import get_active_codes
-
+    players = [(fid, kid)]
     active_codes = get_active_codes()
     logger.info("Redeeming %s active code(s) for new player %s", len(active_codes), fid)
     successes = 0

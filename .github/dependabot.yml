@@ -1,0 +1,58 @@
+# Dependabot configuration for automated dependency updates
+version: 2
+updates:
+  # Enable version updates for Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps(pip)"
+      include: "scope"
+    groups:
+      # Group all discord.py related updates
+      discord:
+        patterns:
+          - "discord.py*"
+      # Group all aiohttp related updates
+      aiohttp:
+        patterns:
+          - "aiohttp*"
+          - "aiohappyeyeballs*"
+          - "aiosignal*"
+          - "multidict*"
+          - "yarl*"
+      # Group all other dependencies
+      others:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "discord.py*"
+          - "aiohttp*"
+          - "aiohappyeyeballs*"
+          - "aiosignal*"
+          - "multidict*"
+          - "yarl*"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "deps(actions)"
+      include: "scope"

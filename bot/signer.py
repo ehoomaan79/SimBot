@@ -12,7 +12,6 @@ SECRET = os.getenv("SIGN_SECRET")
 
 
 def append_sign(data: dict):
-
     keys = sorted(data.keys())
 
     query = "&".join(
@@ -20,8 +19,6 @@ def append_sign(data: dict):
         for k in keys
     )
 
-    print(query)
-    print(SECRET)
     sign = md5(
         (query + SECRET).encode()
     ).hexdigest()

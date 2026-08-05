@@ -93,6 +93,8 @@ async def add_player_command(ctx, fid, kid):
     await ctx.send(f"⏳ Checking player `{fid}` and redeeming available gift codes...")
 
     code = get_latest_code()
+    player_added = False
+    
     if code is not None:
         logger.info("Redeeming code %s for new player %s", code, fid)
         response = await redeem(fid, code, kid)
@@ -116,6 +118,7 @@ async def add_player_command(ctx, fid, kid):
                 await ctx.send("❌ Invalid player ID or kingdom. Please double-check the values.")
             else:
                 await ctx.send("❌ The redeem request failed. Please try again later.")
+        
         if result["reason"] != "player_invalid":
             added = add_player(fid, kid, str(ctx.author.id))
             if not added:
@@ -124,13 +127,26 @@ async def add_player_command(ctx, fid, kid):
 
             await ctx.message.add_reaction("✅")
             await ctx.send(f"✅ Player `{fid}` added successfully.")
-
-    active_codes = get_active_codes()
-    if active_codes:
-        await redeem_all_active_codes_for_player(fid, kid)
-        await ctx.send(f"🔄 I also started redeeming {len(active_codes)} active gift code(s) for this player.")
+            player_added = True
     else:
-        await ctx.send("ℹ️ No active gift codes are currently available for redemption.")
+        # No active code available, just register the player
+        logger.info("No active gift code available, registering player %s without redemption", fid)
+        added = add_player(fid, kid, str(ctx.author.id))
+        if not added:
+            await ctx.send(f"⚠️ Player `{fid}` was not added due to a database conflict.")
+            return
+
+        await ctx.message.add_reaction("✅")
+        await ctx.send(f"✅ Player `{fid}` added successfully.")
+        player_added = True
+
+    if player_added:
+        active_codes = get_active_codes()
+        if active_codes:
+            await redeem_all_active_codes_for_player(fid, kid)
+            await ctx.send(f"🔄 I also started redeeming {len(active_codes)} active gift code(s) for this player.")
+        else:
+            await ctx.send("ℹ️ No active gift codes are currently available for redemption.")
 
 
 @bot.command(name="remove", help="Remove a registered player from the database.")
