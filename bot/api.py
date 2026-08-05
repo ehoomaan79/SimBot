@@ -7,10 +7,6 @@ from logger import get_logger
 from signer import append_sign
 
 from pathlib import Path
-from dotenv import load_dotenv
-
-ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(ENV_PATH)
 
 logger = get_logger(__name__)
 

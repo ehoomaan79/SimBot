@@ -7,9 +7,6 @@ from logger import get_logger
 from pathlib import Path
 from dotenv import load_dotenv
 
-ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(ENV_PATH)
-
 logger = get_logger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 DB_PATH = os.getenv("DISCORD_BOT_DB_PATH") or str(BASE_DIR / "players.db")

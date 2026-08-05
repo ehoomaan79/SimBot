@@ -1,22 +1,28 @@
 import asyncio
+import os
+import sys
+from pathlib import Path
+
+# Import config which will prompt for missing values and set them in os.environ
+from config import DISCORD_TOKEN
+
+# Load .env and initialize config FIRST before importing other modules
+ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
+if ENV_PATH.exists():
+    from dotenv import load_dotenv
+    load_dotenv(ENV_PATH)
 
 import discord
 from discord.ext import commands
 
+# Now import other modules that depend on env vars being set
 from api import redeem
-from config import DISCORD_TOKEN
 from database import add_code, add_player, get_active_codes, get_gift_channel_id, get_latest_code, init_db, player_exists, remove_code, remove_player, set_gift_channel_id
 from giftcodes import redeem_all_active_codes_for_player
 from logger import get_logger
 from reponse_parser import classify_redeem_response
 from workers import check_codes
 from kingshot_listener import handle_message
-
-from pathlib import Path
-from dotenv import load_dotenv
-
-ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(ENV_PATH)
 
 logger = get_logger(__name__)
 

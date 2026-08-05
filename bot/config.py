@@ -2,11 +2,6 @@ import os
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(ENV_PATH)
-
 def _prompt_for_value(key, prompt_text, default_value=""):
     existing_value = os.getenv(key)
     if existing_value:
@@ -14,7 +9,7 @@ def _prompt_for_value(key, prompt_text, default_value=""):
 
     print(prompt_text)
     value = input().strip()
-    if not value and default_value:
+    if (not value) and default_value:
         value = default_value
 
     if value:
