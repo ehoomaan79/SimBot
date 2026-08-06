@@ -7,7 +7,6 @@ CLONE_DIR="${CLONE_DIR:-/tmp/discord-bot-src}"
 SERVICE_NAME="discord-bot"
 SERVICE_FILE=""
 SYSTEMD_MODE="none"
-BOT_USER="SimBot"
 
 install_pkg() {
   local pkg="$1"
@@ -81,14 +80,6 @@ else
   echo "Failed to clone repository from ${REPO_URL}; continuing with local files if present." >&2
 fi
 
-if ! id "$BOT_USER" >/dev/null 2>&1; then
-    useradd \
-        --system \
-        --home /opt/discord-bot \
-        --shell /usr/sbin/nologin \
-        "$BOT_USER"
-fi
-
 if [[ -d "${CLONE_DIR}" ]]; then
   cp -a "${CLONE_DIR}/." "${INSTALL_DIR}/"
 else
@@ -106,7 +97,6 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 
-chown -R "$BOT_USER":"$BOT_USER" "${INSTALL_DIR}"
 chmod 777 -R "${INSTALL_DIR}"
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then

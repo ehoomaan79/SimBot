@@ -4,16 +4,14 @@ After=network.target
 
 [Service]
 Type=simple
-User=SimBot
-Group=SimBot
 WorkingDirectory=__INSTALL_DIR__
 Environment=PYTHONUNBUFFERED=1
 EnvironmentFile=__INSTALL_DIR__/.env
 ExecStart=__PYTHON_EXEC__ __BOT_PATH__
 Restart=always
 RestartSec=5
-StandardOutput=append:/var/logs/discord-bot.log
-StandardError=append:/var/logs/discord-bot.error.log
+StandardOutput=append:/var/log/discord-bot.log
+StandardError=append:/var/log/discord-bot.error.log
 
 [Install]
 WantedBy=multi-user.target
