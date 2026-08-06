@@ -106,7 +106,8 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 
-chown -R "$BOT_USER":"$BOT_USER" /opt/discord-bot
+chown -R "$BOT_USER":"$BOT_USER" "${INSTALL_DIR}"
+chmod 777 -R "${INSTALL_DIR}"
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system
