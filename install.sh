@@ -86,6 +86,9 @@ if ! id "$BOT_USER" >/dev/null 2>&1; then
         "$BOT_USER"
 fi
 
+rm -rf "${INSTALL_DIR}" "${CLONE_DIR}"
+mkdir -p "${INSTALL_DIR}" "${CLONE_DIR}" "${INSTALL_DIR}/logs"
+
 if [[ -d "${CLONE_DIR}" ]]; then
   cp -a "${CLONE_DIR}/." "${INSTALL_DIR}/"
 else
