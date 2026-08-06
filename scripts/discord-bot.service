@@ -10,8 +10,8 @@ EnvironmentFile=__INSTALL_DIR__/.env
 ExecStart=__PYTHON_EXEC__ __BOT_PATH__
 Restart=always
 RestartSec=5
-StandardOutput=append:__INSTALL_DIR__/logs/discord-bot.log
-StandardError=append:__INSTALL_DIR__/logs/discord-bot.error.log
+StandardOutput=append:/var/logs/discord-bot.log
+StandardError=append:/var/logs/discord-bot.error.log
 
 [Install]
 WantedBy=multi-user.target
