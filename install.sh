@@ -97,6 +97,7 @@ fi
 
 touch "${INSTALL_DIR}/.env"
 touch "$INSTALL_DIR/players.db"
+touch "$INSTALL_DIR/logs/bot.log"
 
 chmod +w -R "${INSTALL_DIR}"
 
