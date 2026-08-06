@@ -53,16 +53,6 @@ This installer will:
 - Access to the Kingshot gift-code API endpoint
 - A working network connection to Discord and the Kingshot API
 
-## Environment variables
-
-Create a .env file in the project root with the following values:
-
-```env
-DISCORD_TOKEN=your_discord_bot_token
-SIGN_SECRET=your_kingshot_signature_secret
-API_URL=https://kingshot-giftcode.centurygame.com/api/gift_code
-```
-
 ### Required environment values
 
 The installer prompts for the Discord bot token and writes these values into `/opt/discord-bot/.env`:
