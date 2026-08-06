@@ -71,9 +71,6 @@ if [[ "${SYSTEMD_MODE}" == "none" ]]; then
   echo "systemd was not detected; the bot will be installed to ${INSTALL_DIR}, but no service will be enabled."
 fi
 
-rm -rf "${INSTALL_DIR}" "${CLONE_DIR}"
-mkdir -p "${INSTALL_DIR}" "${CLONE_DIR}" "${INSTALL_DIR}/logs"
-
 if git clone "${REPO_URL}" "${CLONE_DIR}"; then
   echo "Repository cloned to ${CLONE_DIR}"
 else
