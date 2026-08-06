@@ -96,8 +96,9 @@ else
 fi
 
 touch "${INSTALL_DIR}/.env"
+touch "$INSTALL_DIR/players.db"
 
-chmod 777 -R "${INSTALL_DIR}"
+chmod +w -R "${INSTALL_DIR}"
 
 if [[ "${SYSTEMD_MODE}" == "system" ]]; then
   mkdir -p /etc/systemd/system
